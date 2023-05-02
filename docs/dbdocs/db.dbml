@@ -1,0 +1,49 @@
+Project flugo_db {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Flugo-API Database
+  '''
+}
+
+Table users as U {
+  username varchar [pk]
+  email varchar [not null, unique]
+  hashed_password varchar [not null]
+  fullname varchar [not null, default: '']
+  status varchar [not null, default: '']
+  bio varchar [not null, default: '']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+}
+
+Table jokes as J {
+  id serial [pk]
+  username varchar [ref: > U.username, not null]
+  title varchar [not null]
+  text varchar [not null]
+  explanation varchar [not null, default: '']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (username, title) [unique]
+  }
+}
+
+Table likes as L {
+  username varchar [ref: > U.username]
+  joke_id int [ref: > J.id]
+  created_at timestamptz [not null, default: `now()`]
+  
+  indexes {
+    (username, joke_id) [pk]
+  }
+}
+
+Table comments as C {
+  id serial [pk]
+  username varchar [not null, ref: > U.username]
+  joke_id int [not null, ref: > J.id]
+  text varchar [not null]
+  created_at timestamptz [not null, default: `now()`]
+}

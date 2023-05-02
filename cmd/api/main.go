@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	"github.com/abc-valera/flugo-api/internal/server"
+)
 
 func main() {
-	fmt.Println("Hey")
+	log.Fatal(server.RunServer())
 }

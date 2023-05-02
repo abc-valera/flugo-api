@@ -4,7 +4,11 @@
 
 1. Web framework: fiber
 2. Database:
-   1. Migration tool: goose
-   2. ORM: sqlx
-   3. Query builder: goqu
-3. 
+   3. Migration tool: goose
+   4. ORM: sqlx
+   5. Query builder: goqu
+   6. DBML tool: dbdiagram.io
+   7. DBML docs: dbdocs.io
+
+3. Configuration: viper
+4. Documentation: swaggo

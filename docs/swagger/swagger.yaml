@@ -1,0 +1,977 @@
+basePath: /
+definitions:
+  api.errorResponse:
+    properties:
+      code:
+        $ref: '#/definitions/domain.Code'
+      message:
+        type: string
+    type: object
+  domain.Code:
+    enum:
+    - invalid_argument
+    - not_found
+    - already_exists
+    - permission_denied
+    - internal
+    - unauthenticated
+    type: string
+    x-enum-varnames:
+    - CodeInvalidArgument
+    - CodeNotFound
+    - CodeAlreadyExists
+    - CodePermissionDenied
+    - CodeInternal
+    - CodeUnauthenticated
+  dto.CommentReponse:
+    properties:
+      id:
+        type: integer
+      joke_id:
+        type: integer
+      text:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.CreateMyJokeRequest:
+    properties:
+      explanation:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.DeleteMeRequest:
+    properties:
+      password:
+        type: string
+    type: object
+  dto.JokeLikesResponse:
+    properties:
+      likes_number:
+        type: integer
+    type: object
+  dto.JokeResponse:
+    properties:
+      explanation:
+        type: string
+      id:
+        type: integer
+      text:
+        type: string
+      title:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.NewMyCommentRequest:
+    properties:
+      joke_id:
+        type: integer
+      text:
+        type: string
+    type: object
+  dto.SignInRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.SignInResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.SignUpRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.UpdateMyBioRequest:
+    properties:
+      bio:
+        type: string
+    type: object
+  dto.UpdateMyFullnameRequest:
+    properties:
+      fullname:
+        type: string
+    type: object
+  dto.UpdateMyJokeExplanationRequest:
+    properties:
+      explanation:
+        type: string
+      joke_id:
+        type: integer
+    type: object
+  dto.UpdateMyPasswordRequest:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
+  dto.UpdateMyStatusRequest:
+    properties:
+      status:
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      bio:
+        type: string
+      email:
+        type: string
+      fullname:
+        type: string
+      status:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    email: valeriy.tymofieiev@gmail.com
+    name: API Support
+    url: https://github.com/abc-valera
+  description: API for Flugo social network
+  license:
+    name: MIT
+    url: https://github.com/abc-valera
+  title: Flugo
+  version: "0.1"
+paths:
+  /comments/{joke_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: ID of required joke
+        in: path
+        name: joke_id
+        required: true
+        type: integer
+      - in: query
+        name: limit
+        required: true
+        type: integer
+      - in: query
+        name: offset
+        required: true
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - example: created_at
+        in: query
+        name: orderBy
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CommentReponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Returns comments for specified joke.
+      tags:
+      - comments
+  /jokes:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - in: query
+        name: limit
+        required: true
+        type: integer
+      - in: query
+        name: offset
+        required: true
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - example: created_at
+        in: query
+        name: orderBy
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.JokeResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Returns all jokes (limited by limit and offset) from the database.
+      tags:
+      - jokes
+  /jokes/{joke_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: id of required joke
+        in: path
+        name: joke_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.JokeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Returns joke with specified ID from the database.
+      tags:
+      - jokes
+  /jokes/by/{username}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: username of required user
+        in: path
+        name: username
+        required: true
+        type: string
+      - in: query
+        name: limit
+        required: true
+        type: integer
+      - in: query
+        name: offset
+        required: true
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - example: created_at
+        in: query
+        name: orderBy
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.JokeResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Returns all jokes (limited by limit and offset) by specified user.
+      tags:
+      - jokes
+  /likes/{joke_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: ID of required joke
+        in: path
+        name: joke_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.JokeLikesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Returns likes number for specified joke.
+      tags:
+      - likes
+  /me:
+    delete:
+      consumes:
+      - application/json
+      description: Compares provided password with original password hash and deletes
+        user forever!
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: password
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteMeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Deletes current user.
+      tags:
+      - me
+    get:
+      consumes:
+      - application/json
+      description: Returns data about user whose auth credentials provided.
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Returns current user.
+      tags:
+      - me
+  /me/bio:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: new bio
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMyBioRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Updates current user's bio.
+      tags:
+      - me
+  /me/comments:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: request for creating comment
+        in: body
+        name: comment_data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewMyCommentRequest'
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Creates new comment for a specified joke by current user.
+      tags:
+      - my comments
+  /me/comments/{comment_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: ID of required comment
+        in: path
+        name: comment_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Deletes specified comment by current user.
+      tags:
+      - my comments
+  /me/fullname:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: new fullname
+        in: body
+        name: fullname
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMyFullnameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Updates current user's fullname.
+      tags:
+      - me
+  /me/jokes:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - in: query
+        name: limit
+        required: true
+        type: integer
+      - in: query
+        name: offset
+        required: true
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - example: created_at
+        in: query
+        name: orderBy
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.JokeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Returns all jokes (limited by limit and offset) created by the current
+        user.
+      tags:
+      - my jokes
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: request for creating joke
+        in: body
+        name: joke_data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateMyJokeRequest'
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Create new joke for current user.
+      tags:
+      - my jokes
+  /me/jokes/{joke_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: ID of required joke
+        in: path
+        name: joke_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Deletes specified joke created by current user.
+      tags:
+      - my jokes
+  /me/jokes/explanation:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: request for updating joke explanation
+        in: body
+        name: explanation
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMyJokeExplanationRequest'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Updates explanation of specified joke created by current user.
+      tags:
+      - my jokes
+  /me/likes/{joke_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: ID of required joke
+        in: path
+        name: joke_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Deletes like (made by current user) of a specified joke.
+      tags:
+      - my likes
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: ID of required joke
+        in: path
+        name: joke_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Create new like by current user for specified joke.
+      tags:
+      - my likes
+  /me/password:
+    put:
+      consumes:
+      - application/json
+      description: Compares provided password with original password hash and updates
+        user with new password.
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: old and new passwords
+        in: body
+        name: passwords
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMyPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Updates current user's password.
+      tags:
+      - me
+  /me/status:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: new status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMyStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Updates current user's status.
+      tags:
+      - me
+  /sign_in:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Performs sign-in with email to an existing user account.
+        Returns user with access token for accessing secured endpoints and refresh token for renewing access token.
+      parameters:
+      - description: sign-in request
+        in: body
+        name: sign-in
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SignInResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Sign-in to existing account
+      tags:
+      - sign
+  /sign_up:
+    post:
+      consumes:
+      - application/json
+      description: Performs sign-up of the new user account.
+      parameters:
+      - description: sign-up request
+        in: body
+        name: sign-up
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUpRequest'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Create new user account
+      tags:
+      - sign
+  /users/search/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Searches for users in specified range whose usernames follow the
+        pattern *<username>*.
+      parameters:
+      - description: access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: pattern for a username
+        in: path
+        name: username
+        required: true
+        type: string
+      - in: query
+        name: limit
+        required: true
+        type: integer
+      - in: query
+        name: offset
+        required: true
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - example: created_at
+        in: query
+        name: orderBy
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Searches for users in specified range.
+      tags:
+      - users
+swagger: "2.0"
