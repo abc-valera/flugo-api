@@ -51,6 +51,7 @@ type userService struct {
 	userRepo   repository.UserRepository
 	passwordFr framework.PasswordFramework
 	tokenFr    framework.TokenFramework
+	mailFr     framework.EmailFramework
 }
 
 func newUsserService(repos *repository.Repositories, frs *framework.Frameworks) UserService {
@@ -58,6 +59,7 @@ func newUsserService(repos *repository.Repositories, frs *framework.Frameworks) 
 		userRepo:   repos.UserRepository,
 		passwordFr: frs.PasswordFramework,
 		tokenFr:    frs.TokenFramework,
+		mailFr:     frs.MailFramework,
 	}
 }
 
@@ -81,6 +83,14 @@ func (s *userService) SignUp(c context.Context, user *domain.User, password stri
 		}
 		return err
 	}
+
+	msg := "Hello World!"
+
+	err = s.mailFr.SendEmail("Welcome to Flugo!", msg, []string{user.Email}, []string{})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

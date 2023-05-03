@@ -29,7 +29,9 @@ func RunServer() error {
 
 	// Init layers
 	repos := repository.NewRepositories(conn)
-	frameworks := framework.NewFrameworks(c.AccessTokenDuration, c.RefreshTokenDuration)
+	frameworks := framework.NewFrameworks(
+		c.AccessTokenDuration, c.RefreshTokenDuration,
+		c.EmailSenderAddress, c.EmailSenderPassword)
 	services := service.NewServices(repos, frameworks)
 
 	// Init app
