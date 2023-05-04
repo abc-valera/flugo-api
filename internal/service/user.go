@@ -84,13 +84,6 @@ func (s *userService) SignUp(c context.Context, user *domain.User, password stri
 		return err
 	}
 
-	msg := "Hello World!"
-
-	err = s.mailFr.SendEmail("Welcome to Flugo!", msg, []string{user.Email}, []string{})
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 

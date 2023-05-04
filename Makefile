@@ -8,7 +8,7 @@ init_swagger:
 init_dbdocs:
 	dbdocs build ./docs/dbdocs/db.dbml
 init_migrations:
-	goose -dir migration/ -s create users sql
+	migrate create -ext sql -dir migration -seq schema
 
 # run commands
 run_flugo-db:
@@ -18,5 +18,5 @@ run_migrations-up:
 run_migrations-down:
 	goose -dir migration postgres "postgresql://abc_valera:abc_valera@localhost:5432/flugo?sslmode=disable" down
 run_flugo-api_local:
-	make run_migrations-up;go build -o build/flugo-api cmd/api/main.go;./build/flugo-api
+	go build -o build/flugo-api cmd/api/main.go;./build/flugo-api
 	
