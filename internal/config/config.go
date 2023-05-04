@@ -1,4 +1,4 @@
-package server
+package config
 
 import (
 	"time"
@@ -12,14 +12,17 @@ type Config struct {
 	PORT                 string        `mapstructure:"PORT"`
 	DatabaseDriver       string        `mapstructure:"DATABASE_DRIVER"`
 	DatabaseUrl          string        `mapstructure:"DATABASE_URL"`
+	DatabaseTestUrl      string        `mapstructure:"DATABASE_URL_TEST"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 	EmailSenderAddress   string        `mapstructure:"EMAIL_SENDER_ADDRESS"`
 	EmailSenderPassword  string        `mapstructure:"EMAIL_SENDER_PASSWORD"`
 }
 
-func LoadConfig(path string) (Config, error) {
-	viper.SetConfigFile(".env")
+const configPath = ".env"
+
+func LoadConfig() (Config, error) {
+	viper.SetConfigFile(configPath)
 
 	// Override variables from file with the environmet variables
 	viper.AutomaticEnv()
