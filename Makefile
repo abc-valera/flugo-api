@@ -4,19 +4,34 @@ enter_db:
 
 # generate commands
 init_swagger:
-	(swag fmt -d internal/delivery;swag init --parseDependency -o ./docs/swagger -d internal/delivery/handler -g ../api/app.go)
+	swag fmt -d internal/delivery
+	swag init --parseDependency -o ./docs/swagger -d internal/delivery/handler -g ../api/app.go
 init_dbdocs:
 	dbdocs build ./docs/dbdocs/db.dbml
 init_migrations:
 	migrate create -ext sql -dir migration -seq schema
+generate_mock:
+	mockery --dir internal/infrastructure/framework --output internal/infrastructure/framework/mock --all
+	mockery --dir internal/infrastructure/repository --output internal/infrastructure/repository/mock --all
 
-# run commands
+# local run commands
+run_test_repository:
+	go test -count=1 ./internal/infrastructure/repository/...
+run_test_service:
+	go test -count=1 ./internal/service/...
+run_test_delivery:
+	go test -count=1 ./internal/delivery/...
+run_test_all:
+	go test -count=1 ./...
 run_flugo-db:
-	docker rm -f flugo-db;docker run --name flugo-db -p "5432:5432" -e POSTGRES_USER=abc_valera -e POSTGRES_PASSWORD=abc_valera -e POSTGRES_DB=flugo -d postgres
-run_migrations-up:
-	goose -dir migration postgres "postgresql://abc_valera:abc_valera@localhost:5432/flugo?sslmode=disable" up
-run_migrations-down:
-	goose -dir migration postgres "postgresql://abc_valera:abc_valera@localhost:5432/flugo?sslmode=disable" down
+	docker run --name flugo-db -p "5432:5432" -e POSTGRES_USER=abc_valera -e POSTGRES_PASSWORD=abc_valera -e POSTGRES_DB=flugo -d postgres:15-alpine
 run_flugo-api_local:
-	go build -o build/flugo-api cmd/api/main.go;./build/flugo-api
+	go build -o build/flugo-api cmd/api/main.go
+	./build/flugo-api
+run_all_local:
+	docker rm -f flugo-db
+	make run_flugo-db
+	sleep 2
+	make run_flugo-api_local
+
 	
