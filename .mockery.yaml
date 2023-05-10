@@ -1,0 +1,6 @@
+case: underscore
+inpackage-suffix: True
+inpackage: False
+keeptree: False
+outpkg: mock
+with-expecter: True
