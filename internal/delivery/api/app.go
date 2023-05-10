@@ -24,9 +24,9 @@ import (
 //	@license.name	MIT
 //	@license.url	https://github.com/abc-valera
 
-// @host						localhost:3000
-// @BasePath					/
-// @query.collection.format	multi
+//	@host						localhost:3000
+//	@BasePath					/
+//	@query.collection.format	multi
 func RunAPI(PORT string, frameworks *framework.Frameworks, repos *repository.Repositories, services *service.Services) error {
 	handlers := handler.NewHandlers(repos, services)
 

@@ -5,7 +5,7 @@ import "time"
 type Frameworks struct {
 	PasswordFramework PasswordFramework
 	TokenFramework    TokenFramework
-	MailFramework     EmailFramework
+	EmailFramework    EmailFramework
 }
 
 func NewFrameworks(
@@ -15,6 +15,6 @@ func NewFrameworks(
 	return &Frameworks{
 		PasswordFramework: newPasswordFramework(),
 		TokenFramework:    newTokenFramework(accessDuration, refreshDuration),
-		MailFramework:     newEmailFramework(senderAddress, senderPassword),
+		EmailFramework:    newEmailFramework(senderAddress, senderPassword),
 	}
 }

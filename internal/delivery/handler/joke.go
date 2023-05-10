@@ -90,7 +90,7 @@ func (h *JokeHandler) GetJoke(c *fiber.Ctx) error {
 //	@Success	200				{object}	dto.JokeResponse
 //	@Failure	400				{object}	api.errorResponse
 //	@Failure	500				{object}	api.errorResponse
-//	@Router		/me/jokes																																						[get]
+//	@Router		/me/jokes [get]
 func (h *JokeHandler) GetMyJokes(c *fiber.Ctx) error {
 	query := new(dto.SelectParamsQuery)
 	c.QueryParser(query)
@@ -144,7 +144,7 @@ func (h *JokeHandler) GetUserJokes(c *fiber.Ctx) error {
 //	@Success	200				{object}	dto.JokesResponse
 //	@Failure	400				{object}	api.errorResponse
 //	@Failure	500				{object}	api.errorResponse
-//	@Router		/jokes			[get]
+//	@Router		/jokes [get]
 func (h *JokeHandler) GetAllJokes(c *fiber.Ctx) error {
 	query := new(dto.SelectParamsQuery)
 	c.QueryParser(query)
