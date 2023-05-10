@@ -3,7 +3,6 @@ package server
 import (
 	"log"
 
-	"github.com/abc-valera/flugo-api/internal/config"
 	"github.com/abc-valera/flugo-api/internal/delivery/api"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/framework"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/repository"
@@ -19,7 +18,7 @@ import (
 
 func RunServer() error {
 	// init config
-	c, err := config.LoadConfig()
+	c, err := LoadConfig(".env")
 	if err != nil {
 		return err
 	}
