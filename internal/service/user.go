@@ -54,12 +54,12 @@ type userService struct {
 	mailFr     framework.EmailFramework
 }
 
-func newUsserService(repos *repository.Repositories, frs *framework.Frameworks) UserService {
+func newUserService(repos *repository.Repositories, frs *framework.Frameworks) UserService {
 	return &userService{
 		userRepo:   repos.UserRepository,
 		passwordFr: frs.PasswordFramework,
 		tokenFr:    frs.TokenFramework,
-		mailFr:     frs.MailFramework,
+		mailFr:     frs.EmailFramework,
 	}
 }
 

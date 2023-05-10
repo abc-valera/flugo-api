@@ -13,7 +13,7 @@ type Services struct {
 
 func NewServices(repos *repository.Repositories, frs *framework.Frameworks) *Services {
 	return &Services{
-		UserService:    newUsserService(repos, frs),
+		UserService:    newUserService(repos, frs),
 		JokeService:    newJokeService(repos),
 		CommentService: newCommentService(repos),
 	}
