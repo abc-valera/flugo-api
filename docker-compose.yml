@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  flugo-api:
+    image: flugo-api:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://abc_valera:abc_valera@flugo-db:5432/flugo?sslmode=disable
+    depends_on:
+      - flugo-db
+  flugo-db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=abc_valera
+      - POSTGRES_PASSWORD=abc_valera
+      - POSTGRES_DB=flugo
