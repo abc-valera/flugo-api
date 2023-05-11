@@ -2,54 +2,51 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/infrastructure/repository/util"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
 
-type LikeRepository interface {
-	// CreateLike creates new like entity in the database.
-	// Returns error if specified username already likes specified joke.
-	//
-	// Returned codes:
-	//  - AlreadyExists
-	//  - Internal
-	CreateLike(c context.Context, like *domain.Like) error
+// dbInsertLike represents like data which should be added into the database
+type dbInsertLike struct {
+	Username string `db:"username"`
+	JokeID   int    `db:"joke_id"`
+}
 
-	// CalcLikesOfJoke returns number of users who liked specified joke.
-	// Returns error if joke doesn't exist.
-	//
-	// Returned codes:
-	//  - NotFound
-	//  - Internal
-	CalcLikesOfJoke(c context.Context, jokeID int) (int, error)
+func newDBInsertLike(like *domain.Like) *dbInsertLike {
+	return &dbInsertLike{
+		Username: like.Username,
+		JokeID:   like.JokeID,
+	}
+}
 
-	// GetJokesUserLiked returns liked jokes of a user from the database.
-	// Returns error if there is no user with such username.
-	// Returns empty joke slice if none liked jokes found.
-	//
-	// Returned codes:
-	//  - NotFound
-	//  - Internal
-	GetJokesUserLiked(c context.Context, username string, params *domain.SelectParams) (domain.Jokes, error)
+// dbReturnLike represents like data which is returned from the database
+type dbReturnLike struct {
+	Username  string    `db:"username"`
+	JokeID    int       `db:"joke_id"`
+	CreatedAt time.Time `db:"created_at"`
+}
 
-	// GetUsersWhoLikesJoke returns users who liked specified joke from the database.
-	// Returns error if there is no joke with such id.
-	// Returns empty user slice if none users liked.
-	//
-	// Returned codes:
-	//  - NotFound
-	//  - Internal
-	GetUsersWhoLikedJoke(c context.Context, jokeID int, params *domain.SelectParams) (domain.Users, error)
+func newDomainLike(like *dbReturnLike) *domain.Like {
+	return &domain.Like{
+		Username:  like.Username,
+		JokeID:    like.JokeID,
+		CreatedAt: like.CreatedAt,
+	}
+}
 
-	// DeleteLike deletes user's like to a specified joke.
-	// Returns error if user doesn't like specified joke.
-	//
-	// Returned codes:
-	//  - NotFound
-	//  - Internal
-	DeleteLike(c context.Context, username string, jokeID int) error
+// dbReturnLikes represents slice of dbReturnLike type returned from the database
+type dbReturnLikes []*dbReturnLike
+
+func newDomainLikes(dbLikes dbReturnLikes) domain.Likes {
+	likes := make(domain.Likes, len(dbLikes))
+	for i, like := range dbLikes {
+		likes[i] = newDomainLike(like)
+	}
+	return likes
 }
 
 type likeRepository struct {
@@ -57,7 +54,7 @@ type likeRepository struct {
 	ds *goqu.SelectDataset
 }
 
-func newLikeRepository(db *sqlx.DB) LikeRepository {
+func newLikeRepository(db *sqlx.DB) domain.LikeRepository {
 	return &likeRepository{
 		db: db,
 		ds: goqu.From("likes"),
@@ -65,8 +62,8 @@ func newLikeRepository(db *sqlx.DB) LikeRepository {
 }
 
 func (r *likeRepository) CreateLike(c context.Context, like *domain.Like) error {
-	query := createEntityQuery(r.ds, newDBInsertLike(like))
-	return baseExecDB(c, r.db, query, "CreateLike")
+	query := util.CreateEntityQuery(r.ds, newDBInsertLike(like))
+	return util.BaseExecDB(c, r.db, query, "CreateLike")
 }
 
 func (r *likeRepository) CalcLikesOfJoke(c context.Context, jokeID int) (int, error) {
@@ -76,7 +73,7 @@ func (r *likeRepository) CalcLikesOfJoke(c context.Context, jokeID int) (int, er
 		Where(goqu.C("joke_id").Eq(jokeID)).
 		ToSQL()
 	err := r.db.GetContext(c, &likes_count, query)
-	return likes_count, handlePGErr(err, " CalcLikesOfJoke")
+	return likes_count, util.HandlePGErr(err, " CalcLikesOfJoke")
 }
 
 func (r *likeRepository) GetJokesUserLiked(c context.Context, username string, params *domain.SelectParams) (domain.Jokes, error) {
@@ -87,12 +84,12 @@ func (r *likeRepository) GetJokesUserLiked(c context.Context, username string, p
 			goqu.T("jokes"),
 			goqu.On(goqu.Ex{"joke_id": goqu.I("jokes.id")})).
 		Where(goqu.I("likes.username").Eq(username)).
-		Order(orderedExpression(params)).
+		Order(util.OrderedExpression(params)).
 		Limit(params.Limit).
 		Offset(params.Offset).
 		ToSQL()
 	err := r.db.SelectContext(c, jokes, query)
-	return newDomainJokes(*jokes), handlePGErr(err, "GetJokesUserLiked")
+	return newDomainJokes(*jokes), util.HandlePGErr(err, "GetJokesUserLiked")
 }
 
 func (r *likeRepository) GetUsersWhoLikedJoke(c context.Context, jokeID int, params *domain.SelectParams) (domain.Users, error) {
@@ -103,12 +100,12 @@ func (r *likeRepository) GetUsersWhoLikedJoke(c context.Context, jokeID int, par
 			goqu.T("users"),
 			goqu.On(goqu.Ex{"likes.username": goqu.I("users.username")})).
 		Where(goqu.C("joke_id").Eq(jokeID)).
-		Order(orderedExpression(params)).
+		Order(util.OrderedExpression(params)).
 		Limit(params.Limit).
 		Offset(params.Offset).
 		ToSQL()
 	err := r.db.SelectContext(c, users, query)
-	return newDomainUsers(*users), handlePGErr(err, "GetUsersWhoLikedJoke")
+	return newDomainUsers(*users), util.HandlePGErr(err, "GetUsersWhoLikedJoke")
 }
 
 // TODO: move to ORM?

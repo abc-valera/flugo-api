@@ -11,7 +11,7 @@ init_dbdocs:
 init_migrations:
 	migrate create -ext sql -dir migration -seq schema
 generate_mock:
-	mockery --dir internal/infrastructure/framework --output internal/infrastructure/framework/mock --all
+	mockery --dir internal/infrastructure/pkg --output internal/infrastructure/pkg/mock --all
 	mockery --dir internal/infrastructure/repository --output internal/infrastructure/repository/mock --all
 
 # local run commands
@@ -26,7 +26,7 @@ run_test_all:
 run_flugo-db:
 	docker run --name flugo-db -p "5432:5432" -e POSTGRES_USER=abc_valera -e POSTGRES_PASSWORD=abc_valera -e POSTGRES_DB=flugo -d postgres:15-alpine
 run_flugo-api_local:
-	go build -o build/flugo-api cmd/api/main.go
+	go build -o build/flugo-api cmd/main.go
 	./build/flugo-api
 run_all_local:
 	docker rm -f flugo-db

@@ -1,19 +1,15 @@
 package repository
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/jmoiron/sqlx"
+)
 
-type Repositories struct {
-	UserRepository    UserRepository
-	JokeRepository    JokeRepository
-	LikeRepository    LikeRepository
-	CommentRepository CommentRepository
-}
-
-func NewRepositories(db *sqlx.DB) *Repositories {
-	return &Repositories{
-		UserRepository:    newUserRepository(db),
-		JokeRepository:    newJokeRepository(db),
-		LikeRepository:    newLikeRepository(db),
-		CommentRepository: newCommentRepository(db),
+func NewRepositories(db *sqlx.DB) *domain.Repositories {
+	return &domain.Repositories{
+		UserRepo:    newUserRepository(db),
+		JokeRepo:    newJokeRepository(db),
+		LikeRepo:    newLikeRepository(db),
+		CommentRepo: newCommentRepository(db),
 	}
 }

@@ -3,52 +3,57 @@ package repository
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/infrastructure/repository/util"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
 
-type CommentRepository interface {
-	// CreateComment creates new comment entity in the database.
-	//
-	// Returned codes:
-	//  - Internal
-	CreateComment(c context.Context, comment *domain.Comment) error
+// dbInsertComment represents comment data which should be added into the database
+type dbInsertComment struct {
+	Username string `db:"username"`
+	JokeID   int    `db:"joke_id"`
+	Text     string `db:"text"`
+}
 
-	// GetComment returns comment with such ID from the database.
-	// Returns error if there is no comments with such ID.
-	//
-	// Returned codes:
-	//  - NotFound
-	//  - Internal
-	GetComment(c context.Context, id int) (*domain.Comment, error)
+func newDBInsertComment(comment *domain.Comment) *dbInsertComment {
+	return &dbInsertComment{
+		Username: comment.Username,
+		JokeID:   comment.JokeID,
+		Text:     comment.Text,
+	}
+}
 
-	// GetCommentsOfUser returns comments by specified user.
-	// Returns error if there is no user with such username.
-	// Returns empty comment slice if none comments found.
-	//
-	// Returned codes:
-	//  - NotFound
-	//  - Internal
-	GetCommentsOfUser(c context.Context, username string, params *domain.SelectParams) (domain.Comments, error)
+// dbReturnComment represents comment data which is returned from the database
+type dbReturnComment struct {
+	ID        int       `db:"id"`
+	Username  string    `db:"username"`
+	JokeID    int       `db:"joke_id"`
+	Text      string    `db:"text"`
+	CreatedAt time.Time `db:"created_at"`
+}
 
-	// GetCommentsOfJoke returns comments of specified joke from the database.
-	// Returns error if there is no joke with such id.
-	// Returns empty comment slice if none comments found.
-	//
-	// Returned codes:
-	//  - NotFound
-	//  - Internal
-	GetCommentsOfJoke(c context.Context, jokeID int, params *domain.SelectParams) (domain.Comments, error)
+func newDomainComment(comment *dbReturnComment) *domain.Comment {
+	return &domain.Comment{
+		ID:        comment.ID,
+		Username:  comment.Username,
+		JokeID:    comment.JokeID,
+		Text:      comment.Text,
+		CreatedAt: comment.CreatedAt,
+	}
+}
 
-	// DeleteComment deletes user's comment to a specified joke.
-	// Returns error if user didn't comment specified joke.
-	//
-	// Returned codes:
-	//  - NotFound
-	//  - Internal
-	DeleteComment(c context.Context, id int) error
+// dbReturnComments represents slice of dbReturnComment type returned from the database
+type dbReturnComments []*dbReturnComment
+
+func newDomainComments(dbComments dbReturnComments) domain.Comments {
+	comments := make(domain.Comments, len(dbComments))
+	for i, comment := range dbComments {
+		comments[i] = newDomainComment(comment)
+	}
+	return comments
 }
 
 type commentRepository struct {
@@ -56,7 +61,7 @@ type commentRepository struct {
 	ds *goqu.SelectDataset
 }
 
-func newCommentRepository(db *sqlx.DB) CommentRepository {
+func newCommentRepository(db *sqlx.DB) domain.CommentRepository {
 	return &commentRepository{
 		db: db,
 		ds: goqu.From("comments"),
@@ -64,13 +69,13 @@ func newCommentRepository(db *sqlx.DB) CommentRepository {
 }
 
 func (r *commentRepository) CreateComment(c context.Context, comment *domain.Comment) error {
-	query := createEntityQuery(r.ds, newDBInsertComment(comment))
-	return baseExecDB(c, r.db, query, "CreateComment")
+	query := util.CreateEntityQuery(r.ds, newDBInsertComment(comment))
+	return util.BaseExecDB(c, r.db, query, "CreateComment")
 }
 
 func (r *commentRepository) GetComment(c context.Context, id int) (*domain.Comment, error) {
-	query := getEntityByFieldQuery(r.ds, "id", fmt.Sprint(id))
-	data, err := getDB(c, r.db, &dbReturnComment{}, query, "GetComment")
+	query := util.GetEntityByFieldQuery(r.ds, "id", fmt.Sprint(id))
+	data, err := util.GetDB(c, r.db, &dbReturnComment{}, query, "GetComment")
 	if err != nil {
 		return nil, err
 	}
@@ -83,8 +88,8 @@ func (r *commentRepository) GetComment(c context.Context, id int) (*domain.Comme
 }
 
 func (r *commentRepository) GetCommentsOfUser(c context.Context, username string, params *domain.SelectParams) (domain.Comments, error) {
-	query := getEntitiesByFieldQuery(r.ds, "username", username, params)
-	data, err := selectDB(c, r.db, &dbReturnComments{}, query, "GetCommentsOfUser")
+	query := util.GetEntitiesByFieldQuery(r.ds, "username", username, params)
+	data, err := util.SelectDB(c, r.db, &dbReturnComments{}, query, "GetCommentsOfUser")
 	if err != nil {
 		return domain.Comments{}, err
 	}
@@ -97,8 +102,8 @@ func (r *commentRepository) GetCommentsOfUser(c context.Context, username string
 }
 
 func (r *commentRepository) GetCommentsOfJoke(c context.Context, jokeID int, params *domain.SelectParams) (domain.Comments, error) {
-	query := getEntitiesByFieldQuery(r.ds, "joke_id", fmt.Sprint(jokeID), params)
-	data, err := selectDB(c, r.db, &dbReturnComments{}, query, "GetCommentsOfJoke")
+	query := util.GetEntitiesByFieldQuery(r.ds, "joke_id", fmt.Sprint(jokeID), params)
+	data, err := util.SelectDB(c, r.db, &dbReturnComments{}, query, "GetCommentsOfJoke")
 	if err != nil {
 		return domain.Comments{}, err
 	}
@@ -111,6 +116,6 @@ func (r *commentRepository) GetCommentsOfJoke(c context.Context, jokeID int, par
 }
 
 func (r *commentRepository) DeleteComment(c context.Context, id int) error {
-	query := deleteEntityQuery(r.ds, "id", fmt.Sprint(id))
-	return execCheckDB(c, r.db, query, "DeleteComment")
+	query := util.DeleteEntityQuery(r.ds, "id", fmt.Sprint(id))
+	return util.ExecCheckDB(c, r.db, query, "DeleteComment")
 }
