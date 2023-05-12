@@ -2,16 +2,17 @@ package handler
 
 import (
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/dto"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 type LikeHandler struct {
-	likeRepo domain.LikeRepository
+	likeRepo repository.LikeRepository
 }
 
-func newLikeHandler(repos *domain.Repositories) *LikeHandler {
+func newLikeHandler(repos *repository.Repositories) *LikeHandler {
 	return &LikeHandler{
 		likeRepo: repos.LikeRepo,
 	}

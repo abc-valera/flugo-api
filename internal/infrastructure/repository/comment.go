@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/repository/util"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
@@ -61,7 +62,7 @@ type commentRepository struct {
 	ds *goqu.SelectDataset
 }
 
-func newCommentRepository(db *sqlx.DB) domain.CommentRepository {
+func newCommentRepository(db *sqlx.DB) repository.CommentRepository {
 	return &commentRepository{
 		db: db,
 		ds: goqu.From("comments"),

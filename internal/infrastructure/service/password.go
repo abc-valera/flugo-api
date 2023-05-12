@@ -1,13 +1,14 @@
-package pkg
+package service
 
 import (
+	"github.com/abc-valera/flugo-api/internal/application/service"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type bcryptPassword struct{}
 
-func newPasswordPackage() domain.PasswordPackage {
+func newPasswordService() service.PasswordService {
 	return &bcryptPassword{}
 }
 

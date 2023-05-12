@@ -3,6 +3,7 @@ package middleware
 import (
 	"strings"
 
+	"github.com/abc-valera/flugo-api/internal/application/service"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,7 +14,7 @@ const (
 	AuthPayloadKey = "auth_payload"
 )
 
-func NewAuthMiddleware(tokenFr domain.TokenPackage) fiber.Handler {
+func NewAuthMiddleware(tokenFr service.TokenService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		authHeader := c.Get(authHeaderKey)
 		if len(authHeader) == 0 {

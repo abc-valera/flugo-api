@@ -1,22 +1,23 @@
 package handler
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application"
+	"github.com/abc-valera/flugo-api/internal/application/usecase"
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/dto"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 type CommentHandler struct {
-	commentRepo    domain.CommentRepository
-	commentService application.CommentService
+	commentRepo    repository.CommentRepository
+	commentService usecase.CommentUsecase
 }
 
-func newCommentHandler(repos *domain.Repositories, services *application.Services) *CommentHandler {
+func newCommentHandler(repos *repository.Repositories, services *usecase.Usecases) *CommentHandler {
 	return &CommentHandler{
 		commentRepo:    repos.CommentRepo,
-		commentService: services.CommentService,
+		commentService: services.CommentUsecase,
 	}
 }
 

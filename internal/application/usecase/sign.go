@@ -1,14 +1,16 @@
-package application
+package usecase
 
 import (
 	"context"
 
+	"github.com/abc-valera/flugo-api/internal/application/service"
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 )
 
 // TODO: replace domain.User for another type?
 
-type SignService interface {
+type SignUsecase interface {
 	// SignUp performs user sign-up: it creates new user entity with unique username and email.
 	// SignUp also creates hash of the password provided by user
 	// (the original password is not stored due to security issues).
@@ -29,19 +31,19 @@ type SignService interface {
 	SignIn(c context.Context, email, password string) (*domain.User, string, string, error)
 }
 
-type signService struct {
-	userRepo    domain.UserRepository
-	passwordPkg domain.PasswordPackage
-	tokenPkg    domain.TokenPackage
-	emailPkg    domain.EmailPackage
+type signUsecase struct {
+	userRepo    repository.UserRepository
+	passwordPkg service.PasswordService
+	tokenPkg    service.TokenService
+	emailPkg    service.EmailService
 }
 
-func newSignService(uR domain.UserRepository,
-	pPkg domain.PasswordPackage,
-	tPkg domain.TokenPackage,
-	ePkg domain.EmailPackage,
-) SignService {
-	return &signService{
+func newSignUsecase(uR repository.UserRepository,
+	pPkg service.PasswordService,
+	tPkg service.TokenService,
+	ePkg service.EmailService,
+) SignUsecase {
+	return &signUsecase{
 		userRepo:    uR,
 		passwordPkg: pPkg,
 		tokenPkg:    tPkg,
@@ -49,7 +51,7 @@ func newSignService(uR domain.UserRepository,
 	}
 }
 
-func (s *signService) SignUp(c context.Context, user *domain.User, password string) error {
+func (s *signUsecase) SignUp(c context.Context, user *domain.User, password string) error {
 	hashedPassword, err := s.passwordPkg.HashPassword(password)
 	if err != nil {
 		return err
@@ -73,7 +75,7 @@ func (s *signService) SignUp(c context.Context, user *domain.User, password stri
 	return nil
 }
 
-func (s *signService) SignIn(c context.Context, email, password string) (*domain.User, string, string, error) {
+func (s *signUsecase) SignIn(c context.Context, email, password string) (*domain.User, string, string, error) {
 	user, err := s.userRepo.GetUserByEmail(c, email)
 	if err != nil {
 		return nil, "", "", err

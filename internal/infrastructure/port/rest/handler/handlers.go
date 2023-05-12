@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application"
-	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/application/usecase"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 )
 
 type Handlers struct {
@@ -12,7 +12,7 @@ type Handlers struct {
 	CommentHandler *CommentHandler
 }
 
-func NewHandlers(repos *domain.Repositories, services *application.Services) *Handlers {
+func NewHandlers(repos *repository.Repositories, services *usecase.Usecases) *Handlers {
 	return &Handlers{
 		UserHandler:    newUserHandler(repos, services),
 		JokeHandler:    newJokeHandler(repos, services),

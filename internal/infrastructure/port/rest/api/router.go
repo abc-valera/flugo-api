@@ -1,19 +1,19 @@
 package api
 
 import (
-	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/application/service"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/handler"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
-func routes(app *fiber.App, pkgs *domain.Packages, handlers *handler.Handlers) {
+func routes(app *fiber.App, services *service.Services, handlers *handler.Handlers) {
 	unauth := app.Group("/")
 	unauth.Post("sign_up", handlers.UserHandler.SignUp)
 	unauth.Get("sign_in", handlers.UserHandler.SignIn)
 
 	// Auth middleware
-	app.Use(middleware.NewAuthMiddleware(pkgs.TokenPkg))
+	app.Use(middleware.NewAuthMiddleware(services.TokenService))
 
 	me := app.Group("/me")
 	me.Get("", handlers.UserHandler.GetMe)

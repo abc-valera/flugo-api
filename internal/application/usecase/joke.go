@@ -1,12 +1,13 @@
-package application
+package usecase
 
 import (
 	"context"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 )
 
-type JokeService interface {
+type JokeUsecase interface {
 	// UpdateJokeExplanation checks if joke is updated by its owner and updates joke's explanation.
 	// Returns error if joke is being updated by other (not owner) user.
 	//
@@ -26,19 +27,19 @@ type JokeService interface {
 	DeleteJoke(c context.Context, jokeID int, username string) error
 }
 
-type jokeService struct {
-	userRepo domain.UserRepository
-	jokeRepo domain.JokeRepository
+type jokeUsecase struct {
+	userRepo repository.UserRepository
+	jokeRepo repository.JokeRepository
 }
 
-func newJokeService(userRepo domain.UserRepository, jokeRepo domain.JokeRepository) JokeService {
-	return &jokeService{
+func newJokeUsecase(userRepo repository.UserRepository, jokeRepo repository.JokeRepository) JokeUsecase {
+	return &jokeUsecase{
 		userRepo: userRepo,
 		jokeRepo: jokeRepo,
 	}
 }
 
-func (s *jokeService) UpdateJokeExplanation(c context.Context, jokeID int, username, explanation string) error {
+func (s *jokeUsecase) UpdateJokeExplanation(c context.Context, jokeID int, username, explanation string) error {
 	user, err := s.userRepo.GetUserByUsername(c, username)
 	if err != nil {
 		return err
@@ -51,7 +52,7 @@ func (s *jokeService) UpdateJokeExplanation(c context.Context, jokeID int, usern
 	return s.jokeRepo.UpdateJokeExplanation(c, jokeID, explanation)
 }
 
-func (s *jokeService) DeleteJoke(c context.Context, jokeID int, username string) error {
+func (s *jokeUsecase) DeleteJoke(c context.Context, jokeID int, username string) error {
 	user, err := s.userRepo.GetUserByUsername(c, username)
 	if err != nil {
 		return err

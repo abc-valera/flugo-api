@@ -1,9 +1,10 @@
-package pkg
+package service
 
 import (
 	"fmt"
 	"net/smtp"
 
+	"github.com/abc-valera/flugo-api/internal/application/service"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/jordan-wright/email"
 )
@@ -20,7 +21,7 @@ type goMail struct {
 	senderPassword string
 }
 
-func newEmailPackage(address, password string) domain.EmailPackage {
+func newEmailService(address, password string) service.EmailService {
 	return &goMail{
 		senderName:     senderName,
 		senderAddress:  address,

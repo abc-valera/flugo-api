@@ -1,12 +1,13 @@
-package application
+package usecase
 
 import (
 	"context"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 )
 
-type CommentService interface {
+type CommentUsecase interface {
 	// DeleteComment checks if comment is deleted by its owner and deletes the comment.
 	// Returns error if comment is being deleted by another (who hasn't created it) user.
 	//
@@ -17,19 +18,19 @@ type CommentService interface {
 	DeleteComment(c context.Context, commentID int, username string) error
 }
 
-type commentService struct {
-	userRepo    domain.UserRepository
-	commentRepo domain.CommentRepository
+type commentUsecase struct {
+	userRepo    repository.UserRepository
+	commentRepo repository.CommentRepository
 }
 
-func newCommentService(userRepo domain.UserRepository, commentRepo domain.CommentRepository) CommentService {
-	return &commentService{
+func newCommentUsecase(userRepo repository.UserRepository, commentRepo repository.CommentRepository) CommentUsecase {
+	return &commentUsecase{
 		userRepo:    userRepo,
 		commentRepo: commentRepo,
 	}
 }
 
-func (s *commentService) DeleteComment(c context.Context, commentID int, username string) error {
+func (s *commentUsecase) DeleteComment(c context.Context, commentID int, username string) error {
 	user, err := s.userRepo.GetUserByUsername(c, username)
 	if err != nil {
 		return err

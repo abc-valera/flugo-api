@@ -4,10 +4,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/abc-valera/flugo-api/internal/application"
-	"github.com/abc-valera/flugo-api/internal/infrastructure/pkg"
+	"github.com/abc-valera/flugo-api/internal/application/usecase"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/api"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/repository"
+	"github.com/abc-valera/flugo-api/internal/infrastructure/service"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
@@ -78,11 +78,11 @@ func main() {
 
 	// Init layers
 	repos := repository.NewRepositories(db)
-	pkgs := pkg.NewPackages(
+	services := service.NewServices(
 		c.AccessTokenDuration, c.RefreshTokenDuration,
 		c.EmailSenderAddress, c.EmailSenderPassword)
-	services := application.NewServices(repos, pkgs)
+	usecases := usecase.NewUsecases(repos, services)
 
 	// Init app
-	log.Fatal(api.RunAPI(c.PORT, pkgs, repos, services))
+	log.Fatal(api.RunAPI(c.PORT, services, repos, usecases))
 }

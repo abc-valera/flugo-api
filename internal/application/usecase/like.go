@@ -1,14 +1,15 @@
-package application
+package usecase
 
 import (
 	"context"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 )
 
 // TODO: some strange logic, can be remade
 
-type LikeService interface {
+type LikeUsecase interface {
 	// DeleteJoke checks if like is deleted by its owner and deletes the like.
 	// Returns error if like is being deleted by another (who hasn't created it) user.
 	//
@@ -19,19 +20,19 @@ type LikeService interface {
 	DeleteLike(c context.Context, jokeID int, username string) error
 }
 
-type likeService struct {
-	userRepo domain.UserRepository
-	likeRepo domain.LikeRepository
+type likeUsecase struct {
+	userRepo repository.UserRepository
+	likeRepo repository.LikeRepository
 }
 
-func newLikeService(userRepo domain.UserRepository, likeRepo domain.LikeRepository) LikeService {
-	return &likeService{
+func newLikeUsecase(userRepo repository.UserRepository, likeRepo repository.LikeRepository) LikeUsecase {
+	return &likeUsecase{
 		userRepo: userRepo,
 		likeRepo: likeRepo,
 	}
 }
 
-func (s *likeService) DeleteLike(c context.Context, jokeID int, username string) error {
+func (s *likeUsecase) DeleteLike(c context.Context, jokeID int, username string) error {
 	user, err := s.userRepo.GetUserByUsername(c, username)
 	if err != nil {
 		return err

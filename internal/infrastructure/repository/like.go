@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/repository/util"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
@@ -54,7 +55,7 @@ type likeRepository struct {
 	ds *goqu.SelectDataset
 }
 
-func newLikeRepository(db *sqlx.DB) domain.LikeRepository {
+func newLikeRepository(db *sqlx.DB) repository.LikeRepository {
 	return &likeRepository{
 		db: db,
 		ds: goqu.From("likes"),

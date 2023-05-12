@@ -1,6 +1,6 @@
-package domain
+package service
 
-// Note: rename to EmailPackage
-type EmailPackage interface {
+// Note: rename to EmailService
+type EmailService interface {
 	SendEmail(subject, content string, to []string, attchFiles []string) error
 }

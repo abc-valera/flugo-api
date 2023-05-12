@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/repository/util"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
@@ -67,7 +68,7 @@ type jokeRepository struct {
 	ds *goqu.SelectDataset
 }
 
-func newJokeRepository(db *sqlx.DB) domain.JokeRepository {
+func newJokeRepository(db *sqlx.DB) repository.JokeRepository {
 	return &jokeRepository{
 		db: db,
 		ds: goqu.From("jokes"),

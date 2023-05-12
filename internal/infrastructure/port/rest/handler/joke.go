@@ -1,22 +1,23 @@
 package handler
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application"
+	"github.com/abc-valera/flugo-api/internal/application/usecase"
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/dto"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 type JokeHandler struct {
-	jokeRepo    domain.JokeRepository
-	jokeService application.JokeService
+	jokeRepo    repository.JokeRepository
+	jokeService usecase.JokeUsecase
 }
 
-func newJokeHandler(repos *domain.Repositories, services *application.Services) *JokeHandler {
+func newJokeHandler(repos *repository.Repositories, services *usecase.Usecases) *JokeHandler {
 	return &JokeHandler{
 		jokeRepo:    repos.JokeRepo,
-		jokeService: services.JokeService,
+		jokeService: services.JokeUsecase,
 	}
 }
 

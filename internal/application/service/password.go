@@ -1,6 +1,6 @@
-package domain
+package service
 
-type PasswordPackage interface {
+type PasswordService interface {
 	// HashPassword returns hash of the provided password.
 	//
 	// Returned codes:

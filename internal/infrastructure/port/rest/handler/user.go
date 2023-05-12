@@ -1,24 +1,25 @@
 package handler
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application"
+	"github.com/abc-valera/flugo-api/internal/application/usecase"
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/dto"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 type UserHandler struct {
-	userRepo    domain.UserRepository
-	signService application.SignService
-	userService application.UserService
+	userRepo    repository.UserRepository
+	signService usecase.SignUsecase
+	userService usecase.UserService
 }
 
-func newUserHandler(repos *domain.Repositories, services *application.Services) *UserHandler {
+func newUserHandler(repos *repository.Repositories, services *usecase.Usecases) *UserHandler {
 	return &UserHandler{
 		userRepo:    repos.UserRepo,
-		signService: services.SignService,
-		userService: services.UserService,
+		signService: services.SignUsecase,
+		userService: services.UserUsecase,
 	}
 }
 

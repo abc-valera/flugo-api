@@ -1,9 +1,10 @@
-package pkg
+package service
 
 import (
 	"errors"
 	"time"
 
+	"github.com/abc-valera/flugo-api/internal/application/service"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/golang-jwt/jwt"
 )
@@ -15,7 +16,7 @@ type jwtToken struct {
 	refreshDuration time.Duration
 }
 
-func newTokenPackage(accessDuration, refreshDuration time.Duration) domain.TokenPackage {
+func newTokenService(accessDuration, refreshDuration time.Duration) service.TokenService {
 	return &jwtToken{
 		accessDuration:  accessDuration,
 		refreshDuration: refreshDuration,

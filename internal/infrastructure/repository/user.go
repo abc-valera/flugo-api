@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
+	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/infrastructure/repository/util"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
@@ -72,7 +73,7 @@ type userRepository struct {
 	ds *goqu.SelectDataset // dataSet is used to specify a table's name
 }
 
-func newUserRepository(db *sqlx.DB) domain.UserRepository {
+func newUserRepository(db *sqlx.DB) repository.UserRepository {
 	return &userRepository{
 		db: db,
 		ds: goqu.From("users"),
