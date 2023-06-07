@@ -15,5 +15,6 @@
    2. Mockery
    3. Dockertest
 
-4. Configuration: viper
-5. Documentation: swaggo
+4. Logs: charm log
+5. Configuration: viper
+6. Documentation: swaggo

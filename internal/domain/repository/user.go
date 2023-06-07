@@ -7,6 +7,8 @@ import (
 )
 
 type UserRepository interface {
+	BaseRepository
+
 	// CreateUser creates new user entity in the database.
 	// Returns error if user with same username or email already exists.
 	//

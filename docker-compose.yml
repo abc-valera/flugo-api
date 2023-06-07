@@ -5,9 +5,24 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - REDIS_PORT=flugo-redis:6379
       - DATABASE_URL=postgresql://abc_valera:abc_valera@flugo-db:5432/flugo?sslmode=disable
     depends_on:
       - flugo-db
+      - flugo-redis
+    restart: always
+
+  flugo-redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
   flugo-db:
     image: postgres:15-alpine
     ports:
@@ -16,3 +31,8 @@ services:
       - POSTGRES_USER=abc_valera
       - POSTGRES_PASSWORD=abc_valera
       - POSTGRES_DB=flugo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abc_valera -d flugo"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

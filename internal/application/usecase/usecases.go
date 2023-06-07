@@ -1,8 +1,9 @@
 package usecase
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application/service"
+	"github.com/abc-valera/flugo-api/internal/application/messaging"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
+	"github.com/abc-valera/flugo-api/internal/domain/service"
 )
 
 type Usecases struct {
@@ -13,10 +14,14 @@ type Usecases struct {
 	CommentUsecase CommentUsecase
 }
 
-func NewUsecases(repos *repository.Repositories, services *service.Services) *Usecases {
+func NewUsecases(
+	repos *repository.Repositories,
+	services *service.Services,
+	msgBroker messaging.MessagingBroker,
+) *Usecases {
 	return &Usecases{
-		SignUsecase:    newSignUsecase(repos.UserRepo, services.PasswordService, services.TokenService, services.EmailService),
-		UserUsecase:    newUserService(repos.UserRepo, services.PasswordService),
+		SignUsecase:    newSignUsecase(repos.UserRepo, services.PasswordMaker, services.TokenMaker, services.EmailSender, msgBroker),
+		UserUsecase:    newUserService(repos.UserRepo, services.PasswordMaker),
 		JokeUsecase:    newJokeUsecase(repos.UserRepo, repos.JokeRepo),
 		LikeUsecase:    newLikeUsecase(repos.UserRepo, repos.LikeRepo),
 		CommentUsecase: newCommentUsecase(repos.UserRepo, repos.CommentRepo),

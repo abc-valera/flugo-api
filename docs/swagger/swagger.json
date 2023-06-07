@@ -14,7 +14,7 @@
         },
         "version": "0.1"
     },
-    "host": "localhost:3000",
+    "host": "flugo-api.fly.dev",
     "basePath": "/",
     "paths": {
         "/comments/{joke_id}": {

@@ -92,5 +92,5 @@ func ErrorMessage(err error) string {
 	} else if ok && e.Err != nil {
 		return ErrorMessage(e.Err)
 	}
-	return "An internal error has occurred."
+	return "An internal error has occurred"
 }

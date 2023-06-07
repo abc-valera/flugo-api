@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 
-	"github.com/abc-valera/flugo-api/internal/application/service"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
+	"github.com/abc-valera/flugo-api/internal/domain/service"
 )
 
 type UserService interface {
@@ -29,10 +29,10 @@ type UserService interface {
 
 type userService struct {
 	userRepo    repository.UserRepository
-	passwordPkg service.PasswordService
+	passwordPkg service.PasswordMaker
 }
 
-func newUserService(userRepo repository.UserRepository, passwordPkg service.PasswordService) UserService {
+func newUserService(userRepo repository.UserRepository, passwordPkg service.PasswordMaker) UserService {
 	return &userService{
 		userRepo:    userRepo,
 		passwordPkg: passwordPkg,

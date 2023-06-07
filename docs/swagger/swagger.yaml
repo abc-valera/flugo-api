@@ -140,7 +140,7 @@ definitions:
       username:
         type: string
     type: object
-host: localhost:3000
+host: flugo-api.fly.dev
 info:
   contact:
     email: valeriy.tymofieiev@gmail.com

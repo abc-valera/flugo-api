@@ -1,13 +1,16 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"time"
 
+	"github.com/charmbracelet/log"
+
 	"github.com/abc-valera/flugo-api/internal/application/usecase"
-	"github.com/abc-valera/flugo-api/internal/infrastructure/port/rest/api"
-	"github.com/abc-valera/flugo-api/internal/infrastructure/repository"
-	"github.com/abc-valera/flugo-api/internal/infrastructure/service"
+	"github.com/abc-valera/flugo-api/internal/framework/infrastructure"
+	"github.com/abc-valera/flugo-api/internal/framework/messaging/redis"
+	"github.com/abc-valera/flugo-api/internal/framework/persistence"
+	"github.com/abc-valera/flugo-api/internal/framework/presentation/http/api"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
@@ -19,9 +22,12 @@ import (
 
 // Contains all configuration variables
 type Config struct {
-	PORT                 string        `mapstructure:"PORT"`
+	PORT                 string        `mapstructure:"HTTP_PORT"`
 	DatabaseDriver       string        `mapstructure:"DATABASE_DRIVER"`
 	DatabaseUrl          string        `mapstructure:"DATABASE_URL"`
+	RedisPort            string        `mapstructure:"REDIS_PORT"`
+	RedisUser            string        `mapstructure:"REDIS_USER"`
+	RedisPass            string        `mapstructure:"REDIS_PASS"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 	EmailSenderAddress   string        `mapstructure:"EMAIL_SENDER_ADDRESS"`
@@ -60,6 +66,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Info("Initialized database connection")
 
 	// init migrations
 	m, err := migrate.New("file://migration", c.DatabaseUrl)
@@ -67,22 +74,34 @@ func main() {
 		log.Fatal(err)
 	}
 	// !!! Migrate down for testing only
-	if err := m.Down(); err != nil {
-		// return err
-		log.Println(err)
-	}
+	// if err := m.Down(); err != nil {
+	// 	// return err
+	// 	log.Info(err)
+	// }
 	if err := m.Up(); err != nil {
 		// return err
-		log.Println(err)
+		log.Info(err)
 	}
+	log.Info("Initialized database migrations")
 
-	// Init layers
-	repos := repository.NewRepositories(db)
-	services := service.NewServices(
+	// Init base layers
+	repos := persistence.NewRepositories(db)
+	services := infrastructure.NewServices(
 		c.AccessTokenDuration, c.RefreshTokenDuration,
 		c.EmailSenderAddress, c.EmailSenderPassword)
-	usecases := usecase.NewUsecases(repos, services)
 
-	// Init app
+	// Init redis task mewssaging broker
+	msgBroker := redis.NewMessagingBroker(c.RedisPort, c.RedisUser, c.RedisPass, repos.UserRepo, services.Logger)
+	go msgBroker.StartTaskProcessor()
+
+	fmt.Println(c.RedisPort)
+	fmt.Println(c.RedisPass)
+	fmt.Println(c.RedisUser)
+
+	// Init Usecases
+	usecases := usecase.NewUsecases(repos, services, msgBroker)
+
+	// Init handlers and API
+	log.Info("Running API...")
 	log.Fatal(api.RunAPI(c.PORT, services, repos, usecases))
 }

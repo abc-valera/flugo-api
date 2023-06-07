@@ -3,9 +3,10 @@ package usecase
 import (
 	"context"
 
-	"github.com/abc-valera/flugo-api/internal/application/service"
+	"github.com/abc-valera/flugo-api/internal/application/messaging"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
+	"github.com/abc-valera/flugo-api/internal/domain/service"
 )
 
 // TODO: replace domain.User for another type?
@@ -32,47 +33,53 @@ type SignUsecase interface {
 }
 
 type signUsecase struct {
-	userRepo    repository.UserRepository
-	passwordPkg service.PasswordService
-	tokenPkg    service.TokenService
-	emailPkg    service.EmailService
+	userRepo      repository.UserRepository
+	passwordMaker service.PasswordMaker
+	tokenMaker    service.TokenMaker
+	emailSender   service.EmailSender
+	msgBroker     messaging.MessagingBroker
 }
 
-func newSignUsecase(uR repository.UserRepository,
-	pPkg service.PasswordService,
-	tPkg service.TokenService,
-	ePkg service.EmailService,
+func newSignUsecase(
+	userRepo repository.UserRepository,
+	passwordMaker service.PasswordMaker,
+	tokenMaker service.TokenMaker,
+	emailSender service.EmailSender,
+	msgBroker messaging.MessagingBroker,
 ) SignUsecase {
 	return &signUsecase{
-		userRepo:    uR,
-		passwordPkg: pPkg,
-		tokenPkg:    tPkg,
-		emailPkg:    ePkg,
+		userRepo:      userRepo,
+		passwordMaker: passwordMaker,
+		tokenMaker:    tokenMaker,
+		emailSender:   emailSender,
+		msgBroker:     msgBroker,
 	}
 }
 
 func (s *signUsecase) SignUp(c context.Context, user *domain.User, password string) error {
-	hashedPassword, err := s.passwordPkg.HashPassword(password)
+	hashedPassword, err := s.passwordMaker.HashPassword(password)
 	if err != nil {
 		return err
 	}
-
 	user.HashedPassword = hashedPassword
-	if err = s.userRepo.CreateUser(c, user); err != nil {
-		if domain.ErrorCode(err) == domain.CodeAlreadyExists {
-			_, e := s.userRepo.GetUserByUsername(c, user.Username)
-			if e == nil {
-				return domain.NewErrWithMsg(domain.CodeAlreadyExists, "User with such username already exists")
-			}
-			_, e = s.userRepo.GetUserByEmail(c, user.Email)
-			if e == nil {
-				return domain.NewErrWithMsg(domain.CodeAlreadyExists, "User with such email already exists")
+
+	txFunc := func() error {
+		if err = s.userRepo.CreateUser(c, user); err != nil {
+			if domain.ErrorCode(err) == domain.CodeAlreadyExists {
+				_, e := s.userRepo.GetUserByUsername(c, user.Username)
+				if e == nil {
+					return domain.NewErrWithMsg(domain.CodeAlreadyExists, "User with such username already exists")
+				}
+				_, e = s.userRepo.GetUserByEmail(c, user.Email)
+				if e == nil {
+					return domain.NewErrWithMsg(domain.CodeAlreadyExists, "User with such email already exists")
+				}
 			}
 		}
-		return err
+		return s.msgBroker.SendVerifyEmailTask(c, user.Email)
 	}
 
-	return nil
+	return s.userRepo.WithTx(txFunc)
 }
 
 func (s *signUsecase) SignIn(c context.Context, email, password string) (*domain.User, string, string, error) {
@@ -81,15 +88,15 @@ func (s *signUsecase) SignIn(c context.Context, email, password string) (*domain
 		return nil, "", "", err
 	}
 
-	if err = s.passwordPkg.CheckPassword(password, user.HashedPassword); err != nil {
+	if err = s.passwordMaker.CheckPassword(password, user.HashedPassword); err != nil {
 		return nil, "", "", err
 	}
 
-	access, _, err := s.tokenPkg.CreateAccessToken(user.Username)
+	access, _, err := s.tokenMaker.CreateAccessToken(user.Username)
 	if err != nil {
 		return nil, "", "", err
 	}
-	refresh, _, err := s.tokenPkg.CreateRefreshToken(user.Username)
+	refresh, _, err := s.tokenMaker.CreateRefreshToken(user.Username)
 	if err != nil {
 		return nil, "", "", err
 	}
