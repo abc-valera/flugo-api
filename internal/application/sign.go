@@ -1,9 +1,8 @@
-package usecase
+package application
 
 import (
 	"context"
 
-	"github.com/abc-valera/flugo-api/internal/application/messaging"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/domain/service"
@@ -37,7 +36,7 @@ type signUsecase struct {
 	passwordMaker service.PasswordMaker
 	tokenMaker    service.TokenMaker
 	emailSender   service.EmailSender
-	msgBroker     messaging.MessagingBroker
+	msgBroker     service.MessagingBroker
 }
 
 func newSignUsecase(
@@ -45,7 +44,7 @@ func newSignUsecase(
 	passwordMaker service.PasswordMaker,
 	tokenMaker service.TokenMaker,
 	emailSender service.EmailSender,
-	msgBroker messaging.MessagingBroker,
+	msgBroker service.MessagingBroker,
 ) SignUsecase {
 	return &signUsecase{
 		userRepo:      userRepo,

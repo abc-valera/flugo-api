@@ -1,7 +1,6 @@
-package usecase
+package application
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application/messaging"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/domain/service"
 )
@@ -17,7 +16,7 @@ type Usecases struct {
 func NewUsecases(
 	repos *repository.Repositories,
 	services *service.Services,
-	msgBroker messaging.MessagingBroker,
+	msgBroker service.MessagingBroker,
 ) *Usecases {
 	return &Usecases{
 		SignUsecase:    newSignUsecase(repos.UserRepo, services.PasswordMaker, services.TokenMaker, services.EmailSender, msgBroker),

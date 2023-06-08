@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application/usecase"
+	"github.com/abc-valera/flugo-api/internal/application"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/framework/presentation/http/dto"
@@ -11,13 +11,13 @@ import (
 
 type JokeHandler struct {
 	jokeRepo    repository.JokeRepository
-	jokeUsecase usecase.JokeUsecase
+	jokeUsecase application.JokeUsecase
 	*baseHandler
 }
 
 func newJokeHandler(
 	repos *repository.Repositories,
-	usecases *usecase.Usecases,
+	usecases *application.Usecases,
 	baseHandler *baseHandler,
 ) *JokeHandler {
 	return &JokeHandler{

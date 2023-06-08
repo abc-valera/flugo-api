@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application/usecase"
+	"github.com/abc-valera/flugo-api/internal/application"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/framework/presentation/http/dto"
@@ -11,13 +11,13 @@ import (
 
 type CommentHandler struct {
 	commentRepo    repository.CommentRepository
-	commentService usecase.CommentUsecase
+	commentService application.CommentUsecase
 	*baseHandler
 }
 
 func newCommentHandler(
 	repos *repository.Repositories,
-	usecases *usecase.Usecases,
+	usecases *application.Usecases,
 	baseHandler *baseHandler,
 ) *CommentHandler {
 	return &CommentHandler{

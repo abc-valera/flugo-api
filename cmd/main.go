@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/log"
 
-	"github.com/abc-valera/flugo-api/internal/application/usecase"
+	"github.com/abc-valera/flugo-api/internal/application"
 	"github.com/abc-valera/flugo-api/internal/framework/infrastructure"
 	"github.com/abc-valera/flugo-api/internal/framework/messaging/redis"
 	"github.com/abc-valera/flugo-api/internal/framework/persistence"
@@ -92,14 +92,11 @@ func main() {
 
 	// Init redis task mewssaging broker
 	msgBroker := redis.NewMessagingBroker(c.RedisPort, c.RedisUser, c.RedisPass, repos.UserRepo, services.Logger)
-	go msgBroker.StartTaskProcessor()
-
-	fmt.Println(c.RedisPort)
-	fmt.Println(c.RedisPass)
-	fmt.Println(c.RedisUser)
 
 	// Init Usecases
-	usecases := usecase.NewUsecases(repos, services, msgBroker)
+	usecases := application.NewUsecases(repos, services, msgBroker)
+
+	fmt.Println(c)
 
 	// Init handlers and API
 	log.Info("Running API...")

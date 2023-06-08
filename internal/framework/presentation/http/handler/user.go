@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/abc-valera/flugo-api/internal/application/usecase"
+	"github.com/abc-valera/flugo-api/internal/application"
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/framework/presentation/http/dto"
@@ -11,14 +11,14 @@ import (
 
 type UserHandler struct {
 	userRepo    repository.UserRepository
-	signUsecase usecase.SignUsecase
-	userUsecase usecase.UserService
+	signUsecase application.SignUsecase
+	userUsecase application.UserService
 	*baseHandler
 }
 
 func newUserHandler(
 	repos *repository.Repositories,
-	usecases *usecase.Usecases,
+	usecases *application.Usecases,
 	baseHandler *baseHandler,
 ) *UserHandler {
 	return &UserHandler{

@@ -39,6 +39,7 @@ func (p *redisTaskDistributor) DistributeTaskSendVerifyEmail(
 	return nil
 }
 
+// TODO: error handling with asynq.SkipRetry
 func (p *redisTaskProcessor) ProccessTaskSendVerifyEmail(c context.Context, task *asynq.Task) error {
 	payload := new(payloadSendVerifyEmail)
 	if err := json.Unmarshal(task.Payload(), payload); err != nil {

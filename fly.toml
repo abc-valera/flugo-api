@@ -5,23 +5,18 @@
 
 app = "flugo-api"
 primary_region = "ams"
-kill_signal = "SIGINT"
-kill_timeout = 5
-processes = []
 
 [build]
   dockerfile = "Dockerfile"
 
 [env]
-  DATABASE_URL = "postgres://postgres:bPhSN946155CrmZ@flugo-db.flycast:5432"
-  # REDIS_PORT = "redis://default:559c8e8b1c6441549530cc75d72b8199@fly-flugo-redis.upstash.io"
-  REDIS_PORT = "fly-flugo-redis.upstash.io:6379"
-  REDIS_USER = "default"
-  REDIS_PASS = "559c8e8b1c6441549530cc75d72b8199"
+  REDIS_PORT="fly-flugo-redis.upstash.io:6379"
+  REDIS_USER="default"
+  REDIS_PASS="75335fde38124af7841b89650792b52d"
 
 [http_service]
   internal_port = 3000
-  # force_https = true
-  # auto_stop_machines = true
-  # auto_start_machines = true
-  # min_machines_running = 0
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
