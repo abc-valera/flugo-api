@@ -47,7 +47,7 @@ func (p *redisTaskProcessor) ProccessTaskSendVerifyEmail(c context.Context, task
 		return fmt.Errorf("%w %w", domain.NewInternalError("ProccessTaskSendVerifyEmail", err), asynq.SkipRetry)
 	}
 
-	// send email..
+	p.emailSender.SendEmail("test", "Hey there!", []string{payload.Email}, []string{})
 
 	p.log.Info("PROCESSED TASK",
 		"type", task.Type(),

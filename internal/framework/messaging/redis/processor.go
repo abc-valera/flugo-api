@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
-	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/domain/service"
 	"github.com/hibiken/asynq"
 )
@@ -15,12 +14,12 @@ const (
 )
 
 type redisTaskProcessor struct {
-	log      service.Logger
-	server   *asynq.Server
-	userRepo repository.UserRepository
+	log         service.Logger
+	server      *asynq.Server
+	emailSender service.EmailSender
 }
 
-func newRedisTaskProcessor(log service.Logger, redisOpt *asynq.RedisClientOpt, userRepo repository.UserRepository) *redisTaskProcessor {
+func newRedisTaskProcessor(log service.Logger, redisOpt *asynq.RedisClientOpt, emailSender service.EmailSender) *redisTaskProcessor {
 	return &redisTaskProcessor{
 		log: log,
 		server: asynq.NewServer(
@@ -44,7 +43,7 @@ func newRedisTaskProcessor(log service.Logger, redisOpt *asynq.RedisClientOpt, u
 				Logger: &customAsynqLogger{log},
 			},
 		),
-		userRepo: userRepo,
+		emailSender: emailSender,
 	}
 }
 

@@ -90,7 +90,7 @@ func main() {
 		c.EmailSenderAddress, c.EmailSenderPassword)
 
 	// Init redis task mewssaging broker
-	msgBroker := redis.NewMessagingBroker(c.RedisPort, c.RedisUser, c.RedisPass, repos.UserRepo, services.Logger)
+	msgBroker := redis.NewMessagingBroker(c.RedisPort, c.RedisUser, c.RedisPass, services.EmailSender, services.Logger)
 
 	// Init Usecases
 	usecases := application.NewUsecases(repos, services, msgBroker)

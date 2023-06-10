@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/domain/service"
 	"github.com/hibiken/asynq"
 )
@@ -18,7 +17,7 @@ func NewMessagingBroker(
 	redisUrl,
 	redisUser,
 	redisPass string,
-	userRepo repository.UserRepository,
+	emailSender service.EmailSender,
 	log service.Logger,
 ) service.MessagingBroker {
 	redisOpt := &asynq.RedisClientOpt{
@@ -27,7 +26,7 @@ func NewMessagingBroker(
 		Password: redisPass,
 	}
 
-	proc := newRedisTaskProcessor(log, redisOpt, userRepo)
+	proc := newRedisTaskProcessor(log, redisOpt, emailSender)
 	proc.log.Info("Starting task processor")
 	go proc.Start()
 
@@ -43,8 +42,8 @@ func (m *messagingBroker) SendVerifyEmailTask(c context.Context, to string) erro
 	}
 
 	opts := []asynq.Option{
-		asynq.MaxRetry(10),
-		asynq.ProcessIn(5 * time.Second),
+		asynq.MaxRetry(5),
+		asynq.ProcessIn(3 * time.Second),
 		asynq.Queue(queueCritical),
 	}
 
