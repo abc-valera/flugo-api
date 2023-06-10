@@ -3,12 +3,13 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/hibiken/asynq"
 )
 
-const taskSendVerifyEmail = "task:send_verify_email"
+const taskSendVerifyEmail = "send_verify_email"
 
 type payloadSendVerifyEmail struct {
 	Email string `json:"email"`
@@ -43,7 +44,7 @@ func (p *redisTaskDistributor) DistributeTaskSendVerifyEmail(
 func (p *redisTaskProcessor) ProccessTaskSendVerifyEmail(c context.Context, task *asynq.Task) error {
 	payload := new(payloadSendVerifyEmail)
 	if err := json.Unmarshal(task.Payload(), payload); err != nil {
-		return asynq.SkipRetry
+		return fmt.Errorf("%w %w", domain.NewInternalError("ProccessTaskSendVerifyEmail", err), asynq.SkipRetry)
 	}
 
 	// send email..

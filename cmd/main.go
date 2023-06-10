@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -95,8 +94,6 @@ func main() {
 
 	// Init Usecases
 	usecases := application.NewUsecases(repos, services, msgBroker)
-
-	fmt.Println(c)
 
 	// Init handlers and API
 	log.Info("Running API...")

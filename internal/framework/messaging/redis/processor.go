@@ -1,6 +1,9 @@
 package redis
 
 import (
+	"context"
+
+	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
 	"github.com/abc-valera/flugo-api/internal/domain/service"
 	"github.com/hibiken/asynq"
@@ -27,6 +30,18 @@ func newRedisTaskProcessor(log service.Logger, redisOpt *asynq.RedisClientOpt, u
 					queueCritical: 10,
 					queueDefault:  5,
 				},
+				ErrorHandler: asynq.ErrorHandlerFunc(func(ctx context.Context, task *asynq.Task, err error) {
+					code := domain.ErrorCode(err)
+					if code == "" {
+						code = domain.CodeInternal
+					}
+					log.Error("PROCESS TASK FAILED",
+						"code", code,
+						"error", err,
+						"task", task.Type(),
+						"payload:", string(task.Payload()))
+				}),
+				Logger: &customAsynqLogger{log},
 			},
 		),
 		userRepo: userRepo,
@@ -36,9 +51,31 @@ func newRedisTaskProcessor(log service.Logger, redisOpt *asynq.RedisClientOpt, u
 func (p *redisTaskProcessor) Start() error {
 	mux := asynq.NewServeMux()
 
-	// TODO write error handler
-
 	mux.HandleFunc(taskSendVerifyEmail, p.ProccessTaskSendVerifyEmail)
 
 	return p.server.Start(mux)
+}
+
+type customAsynqLogger struct {
+	service.Logger
+}
+
+func (l *customAsynqLogger) Debug(args ...interface{}) {
+	l.Logger.Debug("ASYNQ", "debug", args)
+}
+
+func (l *customAsynqLogger) Info(args ...interface{}) {
+	l.Logger.Info("ASYNQ", "info", args)
+}
+
+func (l *customAsynqLogger) Warn(args ...interface{}) {
+	l.Logger.Warn("ASYNQ", "warn", args)
+}
+
+func (l *customAsynqLogger) Error(args ...interface{}) {
+	l.Logger.Error("ASYNQ", "err", args)
+}
+
+func (l *customAsynqLogger) Fatal(args ...interface{}) {
+	l.Logger.Fatal("ASYNQ", "fatal", args)
 }

@@ -47,7 +47,7 @@ func (m *messagingBroker) SendVerifyEmailTask(c context.Context, to string) erro
 		asynq.ProcessIn(5 * time.Second),
 		asynq.Queue(queueCritical),
 	}
-	// TODO Error handling
+
 	if err := m.distributor.DistributeTaskSendVerifyEmail(c, taskPayload, opts...); err != nil {
 		return err
 	}

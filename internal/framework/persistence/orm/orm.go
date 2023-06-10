@@ -3,7 +3,6 @@ package orm
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/jmoiron/sqlx"
@@ -74,7 +73,6 @@ func (q *dbQuerier) Get(c context.Context, data interface{}, query, op string) e
 
 func (q *dbQuerier) Select(c context.Context, data interface{}, query, op string) error {
 	err := q.db.SelectContext(c, data, query)
-	fmt.Println(query)
 	return HandlePGErr(err, op+" dbQuerier.Select")
 }
 
