@@ -7,6 +7,8 @@ import (
 )
 
 type LikeRepository interface {
+	BaseRepository
+
 	// CreateLike creates new like entity in the database.
 	// Returns error if specified username already likes specified joke.
 	//

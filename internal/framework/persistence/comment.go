@@ -69,6 +69,10 @@ func newCommentRepository(db *sqlx.DB) repository.CommentRepository {
 	}
 }
 
+func (r *commentRepository) WithTx(txFunc func() error) error {
+	return r.q.WithTx(txFunc)
+}
+
 func (r *commentRepository) CreateComment(c context.Context, comment *domain.Comment) error {
 	query := orm.CreateEntityQuery(r.ds, newDBInsertComment(comment))
 	return r.q.Exec(c, query, "CreateComment")

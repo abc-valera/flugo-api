@@ -7,6 +7,8 @@ import (
 )
 
 type CommentRepository interface {
+	BaseRepository
+
 	// CreateComment creates new comment entity in the database.
 	//
 	// Returned codes:

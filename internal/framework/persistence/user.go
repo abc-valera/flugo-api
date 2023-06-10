@@ -81,19 +81,7 @@ func newUserRepository(db *sqlx.DB) repository.UserRepository {
 }
 
 func (r *userRepository) WithTx(txFunc func() error) error {
-	txEcec, err := r.q.StartTx()
-	if err != nil {
-		return domain.NewInternalError("ususerRepo.WithTx", err)
-	}
-	r.q.ExecQuerier = txEcec
-
-	dbExec, err := r.q.PerformTx(txFunc)
-	if err != nil {
-		return err
-	}
-	r.q.ExecQuerier = dbExec
-
-	return nil
+	return r.q.WithTx(txFunc)
 }
 
 func (r *userRepository) CreateUser(c context.Context, user *domain.User) error {

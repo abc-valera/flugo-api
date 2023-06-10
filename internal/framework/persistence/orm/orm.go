@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/jmoiron/sqlx"
@@ -24,6 +25,22 @@ func NewQueriers(db *sqlx.DB) Queriers {
 		&dbQuerier{db},
 		NewTransactioner(db),
 	}
+}
+
+func (q *Queriers) WithTx(txFunc func() error) error {
+	txEcec, err := q.StartTx()
+	if err != nil {
+		return domain.NewInternalError("ususerRepo.WithTx", err)
+	}
+	q.ExecQuerier = txEcec
+
+	dbExec, err := q.PerformTx(txFunc)
+	if err != nil {
+		return err
+	}
+	q.ExecQuerier = dbExec
+
+	return nil
 }
 
 // GetQuerier represents ways to get entities from database
@@ -50,23 +67,24 @@ type dbQuerier struct {
 	db *sqlx.DB
 }
 
-func (db *dbQuerier) Get(c context.Context, data interface{}, query, op string) error {
-	err := db.db.GetContext(c, data, query)
+func (q *dbQuerier) Get(c context.Context, data interface{}, query, op string) error {
+	err := q.db.GetContext(c, data, query)
 	return HandlePGErr(err, op+" dbQuerier.Get")
 }
 
-func (db *dbQuerier) Select(c context.Context, data interface{}, query, op string) error {
-	err := db.db.SelectContext(c, data, query)
+func (q *dbQuerier) Select(c context.Context, data interface{}, query, op string) error {
+	err := q.db.SelectContext(c, data, query)
+	fmt.Println(query)
 	return HandlePGErr(err, op+" dbQuerier.Select")
 }
 
-func (db *dbQuerier) Exec(c context.Context, query, op string) error {
-	_, err := db.db.ExecContext(c, query)
+func (q *dbQuerier) Exec(c context.Context, query, op string) error {
+	_, err := q.db.ExecContext(c, query)
 	return HandlePGErr(err, op+" dbQuerier.Exec")
 }
 
-func (db *dbQuerier) CheckExec(c context.Context, query, op string) error {
-	res, err := db.db.ExecContext(c, query)
+func (q *dbQuerier) CheckExec(c context.Context, query, op string) error {
+	res, err := q.db.ExecContext(c, query)
 	if err != nil {
 		return domain.NewInternalError(op+" dbQuerier.CheckExec", err)
 	}
@@ -81,13 +99,13 @@ type txQuerier struct {
 	tx *sqlx.Tx
 }
 
-func (tx *txQuerier) Exec(c context.Context, query, op string) error {
-	_, err := tx.tx.ExecContext(c, query)
+func (q *txQuerier) Exec(c context.Context, query, op string) error {
+	_, err := q.tx.ExecContext(c, query)
 	return HandlePGErr(err, op+" txQuerier.Exec")
 }
 
-func (tx *txQuerier) CheckExec(c context.Context, query, op string) error {
-	res, err := tx.tx.ExecContext(c, query)
+func (q *txQuerier) CheckExec(c context.Context, query, op string) error {
+	res, err := q.tx.ExecContext(c, query)
 	if err != nil {
 		return domain.NewInternalError(op+" txQuerier.CheckExec", err)
 	}
@@ -118,7 +136,7 @@ func NewTransactioner(db *sqlx.DB) Transactioner {
 func (t *transactioner) StartTx() (ExecQuerier, error) {
 	tx, err := t.db.Beginx()
 	if err != nil {
-		return nil, err
+		return nil, domain.NewInternalError("orm.StartTx", err)
 	}
 	t.tx = tx
 	return &txQuerier{tx}, nil

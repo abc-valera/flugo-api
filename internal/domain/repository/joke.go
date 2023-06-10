@@ -7,6 +7,8 @@ import (
 )
 
 type JokeRepository interface {
+	BaseRepository
+
 	// CreateJoke creates new joke entity in the database.
 	// Returns error if specified username already has a joke with such name.
 	//

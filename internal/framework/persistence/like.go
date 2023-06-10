@@ -62,6 +62,10 @@ func newLikeRepository(db *sqlx.DB) repository.LikeRepository {
 	}
 }
 
+func (r *likeRepository) WithTx(txFunc func() error) error {
+	return r.q.WithTx(txFunc)
+}
+
 func (r *likeRepository) CreateLike(c context.Context, like *domain.Like) error {
 	query := orm.CreateEntityQuery(r.ds, newDBInsertLike(like))
 	return r.q.Exec(c, query, "CreateLike")

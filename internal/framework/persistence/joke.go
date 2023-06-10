@@ -75,6 +75,10 @@ func newJokeRepository(db *sqlx.DB) repository.JokeRepository {
 	}
 }
 
+func (r *jokeRepository) WithTx(txFunc func() error) error {
+	return r.q.WithTx(txFunc)
+}
+
 func (r *jokeRepository) CreateJoke(c context.Context, joke *domain.Joke) error {
 	query := orm.CreateEntityQuery(r.ds, newDBInsertJoke(joke))
 	return r.q.Exec(c, query, "CreateJoke")
