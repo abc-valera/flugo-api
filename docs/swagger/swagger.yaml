@@ -184,7 +184,7 @@ paths:
         type: string
       - example: created_at
         in: query
-        name: orderBy
+        name: order_by
         required: true
         type: string
       produces:
@@ -233,7 +233,7 @@ paths:
         type: string
       - example: created_at
         in: query
-        name: orderBy
+        name: order_by
         required: true
         type: string
       produces:
@@ -320,7 +320,7 @@ paths:
         type: string
       - example: created_at
         in: query
-        name: orderBy
+        name: order_by
         required: true
         type: string
       produces:
@@ -603,7 +603,7 @@ paths:
         type: string
       - example: created_at
         in: query
-        name: orderBy
+        name: order_by
         required: true
         type: string
       produces:
@@ -951,7 +951,7 @@ paths:
         type: string
       - example: created_at
         in: query
-        name: orderBy
+        name: order_by
         required: true
         type: string
       produces:

@@ -24,9 +24,9 @@ import (
 //	@license.name	MIT
 //	@license.url	https://github.com/abc-valera
 
-// @host						flugo-api.fly.dev
-// @BasePath					/
-// @query.collection.format	multi
+//	@host						flugo-api.fly.dev
+//	@BasePath					/
+//	@query.collection.format	multi
 func RunAPI(
 	PORT string,
 	services *service.Services,

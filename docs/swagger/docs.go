@@ -75,7 +75,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "example": "created_at",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query",
                         "required": true
                     }
@@ -149,7 +149,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "example": "created_at",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query",
                         "required": true
                     }
@@ -230,7 +230,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "example": "created_at",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query",
                         "required": true
                     }
@@ -708,7 +708,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "example": "created_at",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query",
                         "required": true
                     }
@@ -1228,7 +1228,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "example": "created_at",
-                        "name": "orderBy",
+                        "name": "order_by",
                         "in": "query",
                         "required": true
                     }

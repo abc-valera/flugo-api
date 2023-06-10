@@ -5,6 +5,7 @@ enter_db:
 # generate commands
 init_swagger:
 	swag fmt -d internal/framework/presentation/http
+	swag init --parseDependency -o ./docs/swagger -d internal/framework/presentation/http/dto -g ../api/app.go
 	swag init --parseDependency -o ./docs/swagger -d internal/framework/presentation/http/handler -g ../api/app.go
 
 init_dbdocs:

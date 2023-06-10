@@ -6,10 +6,10 @@ import "github.com/abc-valera/flugo-api/internal/domain"
 //
 //	@Description	Data for sorting
 type SelectParamsQuery struct {
-	OrderBy string `query:"order_by" validate:"required" example:"created_at"`
-	Order   string `query:"order" validate:"optional" enums:"asc,desc"`
-	Limit   uint   `query:"limit" validate:"required"`
-	Offset  uint   `query:"offset" validate:"required"`
+	OrderBy string `query:"order_by" json:"order_by" validate:"required" example:"created_at"`
+	Order   string `query:"order"  json:"order" validate:"optional" enums:"asc,desc"`
+	Limit   uint   `query:"limit"  json:"limit" validate:"required"`
+	Offset  uint   `query:"offset" json:"offset"  validate:"required"`
 }
 
 func NewDomainSelectParams(params *SelectParamsQuery) *domain.SelectParams {
