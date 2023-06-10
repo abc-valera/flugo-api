@@ -45,7 +45,7 @@ func (s *jwtToken) CreateRefreshToken(username string) (string, *domain.Payload,
 func (s *jwtToken) VerifyToken(token string) (*domain.Payload, error) {
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, domain.NewErrWithMsg(domain.CodeUnauthenticated, "Provided wrong signing method")
+			return nil, domain.NewErrWithMsg(domain.CodeInvalidArgument, "Provided wrong signing method")
 		}
 		return []byte(secretKey), nil
 	}
@@ -56,12 +56,12 @@ func (s *jwtToken) VerifyToken(token string) (*domain.Payload, error) {
 		if ok && errors.Is(verr.Inner, domain.ErrExpiredToken) {
 			return nil, domain.ErrExpiredToken
 		}
-		return nil, domain.NewErrWithMsg(domain.CodeUnauthenticated, "Provided invalid token")
+		return nil, domain.NewErrWithMsg(domain.CodeInvalidArgument, "Provided invalid token")
 	}
 
 	payload, ok := jwtToken.Claims.(*domain.Payload)
 	if !ok {
-		return nil, domain.NewErrWithMsg(domain.CodeUnauthenticated, "Provided invalid token")
+		return nil, domain.NewErrWithMsg(domain.CodeInvalidArgument, "Provided invalid token")
 	}
 	return payload, nil
 }

@@ -32,23 +32,6 @@ func NewUsersResponse(users domain.Users) UsersResponse {
 	return usersResponse
 }
 
-type SignUpRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type SignInRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type SignInResponse struct {
-	AccessToken  string        `json:"access_token"`
-	RefreshToken string        `json:"refresh_token"`
-	User         *UserResponse `json:"user"`
-}
-
 type UpdateMyPasswordRequest struct {
 	NewPassword string `json:"new_password"`
 	OldPassword string `json:"old_password"`

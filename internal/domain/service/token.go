@@ -19,7 +19,8 @@ type TokenMaker interface {
 	// returns its payload.
 	//
 	// Returned codes:
-	//  - CodeUnauthenticated (if provided wrong token)
+	//  - Unauthenticated (if provided outdated token)
+	//  - InvalidArgument (if provided wrong token)
 	//  - Internal
 	VerifyToken(token string) (*domain.Payload, error)
 }

@@ -92,3 +92,32 @@ func (h *SignHandler) SignIn(c *fiber.Ctx) error {
 		User:         dto.NewUserResponse(user),
 	})
 }
+
+// SignRefresh godoc
+//
+//	@Summary		Refresh the access token
+//	@Description	Exchanges the refresh token for a new access token.
+//	@Tags			sign
+//	@Accept			json
+//	@Produce		json
+//	@Param			sign-refresh		body		dto.SignRefreshRequest	true	"sign-refresh request"
+//	@Success		200			{object}	dto.SignRefreshResponse
+//	@Failure		400			{object}	api.errorResponse
+//	@Failure		401			{object}	api.errorResponse
+//	@Failure		500			{object}	api.errorResponse
+//	@Router			/sign_refresh	[get]
+func (h *SignHandler) SignRefresh(c *fiber.Ctx) error {
+	req := new(dto.SignRefreshRequest)
+	if err := c.BodyParser(req); err != nil {
+		return &domain.Error{Code: domain.CodeInvalidArgument, Msg: "Body data should be in json format"}
+	}
+
+	access, err := h.signUsecase.SignRefresh(c.Context(), req.RefreshToken)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&dto.SignRefreshResponse{
+		AccessToken: access,
+	})
+}

@@ -29,6 +29,14 @@ type SignUsecase interface {
 	//  - InvalidArgument (if provided wrong password)
 	//  - Internal
 	SignIn(c context.Context, email, password string) (*domain.User, string, string, error)
+
+	// SignRefresh exchages given refresh token for the access token for the same user.
+	//
+	// Returned codes:
+	//  - Unauthenticated (if provided outdated token)
+	//  - InvalidArgument (if provided wrong token)
+	//  - Internal
+	SignRefresh(c context.Context, refreshToken string) (string, error)
 }
 
 type signUsecase struct {
@@ -101,4 +109,18 @@ func (s *signUsecase) SignIn(c context.Context, email, password string) (*domain
 	}
 
 	return user, access, refresh, nil
+}
+
+func (s *signUsecase) SignRefresh(c context.Context, refreshToken string) (string, error) {
+	payload, err := s.tokenMaker.VerifyToken(refreshToken)
+	if err != nil {
+		return "", err
+	}
+
+	accessToken, _, err := s.tokenMaker.CreateAccessToken(payload.Username)
+	if err != nil {
+		return "", err
+	}
+
+	return accessToken, err
 }

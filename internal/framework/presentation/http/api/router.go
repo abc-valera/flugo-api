@@ -11,6 +11,7 @@ func routes(app *fiber.App, services *service.Services, handlers *handler.Handle
 	unauth := app.Group("/")
 	unauth.Post("sign_up", handlers.SignHandler.SignUp)
 	unauth.Get("sign_in", handlers.SignHandler.SignIn)
+	unauth.Get("sign_refresh", handlers.SignHandler.SignRefresh)
 
 	// Auth middleware
 	app.Use(middleware.NewAuthMiddleware(services.TokenMaker))
