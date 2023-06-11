@@ -2,71 +2,14 @@ package persistence
 
 import (
 	"context"
-	"time"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
+	"github.com/abc-valera/flugo-api/internal/framework/persistence/dto"
 	"github.com/abc-valera/flugo-api/internal/framework/persistence/orm"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
-
-// dbInsertUser represents user data which should be added into the database
-type dbInsertUser struct {
-	Username       string `db:"username"`
-	Email          string `db:"email"`
-	HashedPassword string `db:"hashed_password"`
-	Fullname       string `db:"fullname"`
-	Status         string `db:"status"`
-	Bio            string `db:"bio"`
-}
-
-func newDBInsertUser(user *domain.User) *dbInsertUser {
-	return &dbInsertUser{
-		Username:       user.Username,
-		Email:          user.Email,
-		HashedPassword: user.HashedPassword,
-		Fullname:       user.Fullname,
-		Status:         user.Status,
-		Bio:            user.Bio,
-	}
-}
-
-// dbReturnUser represents user data which is returned from the database
-type dbReturnUser struct {
-	Username       string    `db:"username"`
-	Email          string    `db:"email"`
-	HashedPassword string    `db:"hashed_password"`
-	Fullname       string    `db:"fullname"`
-	Status         string    `db:"status"`
-	Bio            string    `db:"bio"`
-	CreatedAt      time.Time `db:"created_at"`
-	UpdatedAt      time.Time `db:"updated_at"`
-}
-
-func newDomainUser(user *dbReturnUser) *domain.User {
-	return &domain.User{
-		Username:       user.Username,
-		Email:          user.Email,
-		HashedPassword: user.HashedPassword,
-		Fullname:       user.Fullname,
-		Status:         user.Status,
-		Bio:            user.Bio,
-		CreatedAt:      user.CreatedAt,
-		UpdatedAt:      user.UpdatedAt,
-	}
-}
-
-// dbReturnUsers represents slice of dbReturnUser type returned from the database
-type dbReturnUsers []*dbReturnUser
-
-func newDomainUsers(dbUsers dbReturnUsers) domain.Users {
-	users := make(domain.Users, len(dbUsers))
-	for i, user := range dbUsers {
-		users[i] = newDomainUser(user)
-	}
-	return users
-}
 
 type userRepository struct {
 	q  orm.Queriers
@@ -85,38 +28,38 @@ func (r *userRepository) WithTx(txFunc func() error) error {
 }
 
 func (r *userRepository) CreateUser(c context.Context, user *domain.User) error {
-	query := orm.CreateEntityQuery(r.ds, newDBInsertUser(user))
+	query := orm.CreateEntityQuery(r.ds, dto.NewInsertUser(user))
 	return r.q.Exec(c, query, "CreateUser")
 }
 
 func (r *userRepository) GetUserByUsername(c context.Context, username string) (*domain.User, error) {
-	user := &dbReturnUser{}
+	user := &dto.ReturnUser{}
 	query := orm.GetEntityByFieldQuery(r.ds, "username", username)
 	err := r.q.Get(c, user, query, "GetUserByUsername")
 	if err != nil {
 		return nil, err
 	}
-	return newDomainUser(user), nil
+	return dto.NewDomainUser(user), nil
 }
 
 func (r *userRepository) GetUserByEmail(c context.Context, email string) (*domain.User, error) {
-	user := &dbReturnUser{}
+	user := &dto.ReturnUser{}
 	query := orm.GetEntityByFieldQuery(r.ds, "email", email)
 	err := r.q.Get(c, user, query, "GetUserByEmail")
 	if err != nil {
 		return nil, err
 	}
-	return newDomainUser(user), nil
+	return dto.NewDomainUser(user), nil
 }
 
 func (r *userRepository) SearchUsersByUsername(c context.Context, username string, params *domain.SelectParams) (domain.Users, error) {
-	users := &dbReturnUsers{}
+	users := &dto.ReturnUsers{}
 	query := orm.SearchEntitiesByFieldQuery(r.ds, "username", username, params)
 	err := r.q.Select(c, users, query, "SearchUsersByUsername")
 	if err != nil {
 		return domain.Users{}, err
 	}
-	return newDomainUsers(*users), nil
+	return dto.NewDomainUsers(*users), nil
 }
 
 func (r *userRepository) UpdateUserHashedPassword(c context.Context, username, hashedPassword string) error {

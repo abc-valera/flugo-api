@@ -2,53 +2,14 @@ package persistence
 
 import (
 	"context"
-	"time"
 
 	"github.com/abc-valera/flugo-api/internal/domain"
 	"github.com/abc-valera/flugo-api/internal/domain/repository"
+	"github.com/abc-valera/flugo-api/internal/framework/persistence/dto"
 	"github.com/abc-valera/flugo-api/internal/framework/persistence/orm"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
-
-// dbInsertLike represents like data which should be added into the database
-type dbInsertLike struct {
-	Username string `db:"username"`
-	JokeID   int    `db:"joke_id"`
-}
-
-func newDBInsertLike(like *domain.Like) *dbInsertLike {
-	return &dbInsertLike{
-		Username: like.Username,
-		JokeID:   like.JokeID,
-	}
-}
-
-// dbReturnLike represents like data which is returned from the database
-type dbReturnLike struct {
-	Username  string    `db:"username"`
-	JokeID    int       `db:"joke_id"`
-	CreatedAt time.Time `db:"created_at"`
-}
-
-func newDomainLike(like *dbReturnLike) *domain.Like {
-	return &domain.Like{
-		Username:  like.Username,
-		JokeID:    like.JokeID,
-		CreatedAt: like.CreatedAt,
-	}
-}
-
-// dbReturnLikes represents slice of dbReturnLike type returned from the database
-type dbReturnLikes []*dbReturnLike
-
-func newDomainLikes(dbLikes dbReturnLikes) domain.Likes {
-	likes := make(domain.Likes, len(dbLikes))
-	for i, like := range dbLikes {
-		likes[i] = newDomainLike(like)
-	}
-	return likes
-}
 
 type likeRepository struct {
 	q  orm.Queriers
@@ -67,7 +28,7 @@ func (r *likeRepository) WithTx(txFunc func() error) error {
 }
 
 func (r *likeRepository) CreateLike(c context.Context, like *domain.Like) error {
-	query := orm.CreateEntityQuery(r.ds, newDBInsertLike(like))
+	query := orm.CreateEntityQuery(r.ds, dto.NewInsertLike(like))
 	return r.q.Exec(c, query, "CreateLike")
 }
 
@@ -82,7 +43,7 @@ func (r *likeRepository) CalcLikesOfJoke(c context.Context, jokeID int) (int, er
 }
 
 func (r *likeRepository) GetJokesUserLiked(c context.Context, username string, params *domain.SelectParams) (domain.Jokes, error) {
-	jokes := &dbReturnJokes{}
+	jokes := &dto.ReturnJokes{}
 	query, _, _ := r.ds.
 		Select("jokes.id", "jokes.username", "jokes.title", "jokes.text", "jokes.explanation", "jokes.created_at", "jokes.updated_at").
 		InnerJoin(
@@ -94,11 +55,11 @@ func (r *likeRepository) GetJokesUserLiked(c context.Context, username string, p
 		Offset(params.Offset).
 		ToSQL()
 	err := r.q.Select(c, jokes, query, "GetJokesUserLiked")
-	return newDomainJokes(*jokes), err
+	return dto.NewDomainJokes(*jokes), err
 }
 
 func (r *likeRepository) GetUsersWhoLikedJoke(c context.Context, jokeID int, params *domain.SelectParams) (domain.Users, error) {
-	users := &dbReturnUsers{}
+	users := &dto.ReturnUsers{}
 	query, _, _ := r.ds.
 		Select("users.username", "users.email", "users.hashed_password", "users.fullname", "users.status", "users.bio", "users.created_at", "users.updated_at").
 		InnerJoin(
@@ -110,7 +71,7 @@ func (r *likeRepository) GetUsersWhoLikedJoke(c context.Context, jokeID int, par
 		Offset(params.Offset).
 		ToSQL()
 	err := r.q.Select(c, users, query, "GetUsersWhoLikedJoke")
-	return newDomainUsers(*users), err
+	return dto.NewDomainUsers(*users), err
 }
 
 func (r *likeRepository) DeleteLike(c context.Context, username string, jokeID int) error {
